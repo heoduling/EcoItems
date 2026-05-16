@@ -16,6 +16,7 @@ loadbefore:
   - EcoCrates
   - StatTrackers
   - EcoPets
+folia-supported: true
 
 commands:
   ecoitems:
