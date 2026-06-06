@@ -1,6 +1,7 @@
 package com.willfp.ecoitems.items
 
 import com.willfp.ecoitems.plugin
+import com.willfp.libreforge.forceRefreshHolders
 import com.willfp.libreforge.toDispatcher
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeInstance
@@ -9,11 +10,18 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityPickupItemEvent
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerItemHeldEvent
+import org.bukkit.event.player.PlayerSwapHandItemsEvent
 import org.bukkit.inventory.EquipmentSlotGroup
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 object ItemAttributeListener : Listener {
+    private val applyingPlayers = ConcurrentHashMap<UUID, Boolean>()
     @EventHandler
     fun handle(event: PlayerItemHeldEvent) {
         if (event.isCancelled) {
@@ -54,36 +62,87 @@ object ItemAttributeListener : Listener {
         plugin.scheduler.run { apply(player) }
     }
 
+    @EventHandler
+    fun handleInventoryClose(event: InventoryCloseEvent) {
+        val player = event.player as? Player ?: return
+
+        apply(player)
+
+        plugin.scheduler.run { apply(player) }
+    }
+
+    @EventHandler
+    fun handleSwapHandItems(event: PlayerSwapHandItemsEvent) {
+        if (event.isCancelled) {
+            return
+        }
+
+        plugin.scheduler.runLater(1) {
+            event.player.toDispatcher().forceRefreshHolders()
+            apply(event.player)
+        }
+    }
+
+    @EventHandler
+    fun handleInventoryClick(event: InventoryClickEvent) {
+        val player = event.whoClicked as? Player ?: return
+
+        plugin.scheduler.runLater(1) {
+            player.toDispatcher().forceRefreshHolders()
+            apply(player)
+        }
+    }
+
+    @EventHandler
+    fun handleInventoryDrag(event: InventoryDragEvent) {
+        val player = event.whoClicked as? Player ?: return
+
+        plugin.scheduler.runLater(1) {
+            player.toDispatcher().forceRefreshHolders()
+            apply(player)
+        }
+    }
+
     private fun apply(player: Player) {
-        val items = EcoItemFinder.toHolderProvider().provide(player.toDispatcher()).map { it.holder }
+        val uuid = player.uniqueId
 
-        val damageInst = player.getAttribute(Attribute.ATTACK_DAMAGE) ?: return
-        val speedInst = player.getAttribute(Attribute.ATTACK_SPEED) ?: return
-
-        damageInst.modifiers.filter { it.isFromEcoItems }.forEach {
-            damageInst.removeModifier(it)
+        if (applyingPlayers.putIfAbsent(uuid, true) != null) {
+            return
         }
 
-        speedInst.modifiers.filter { it.isFromEcoItems }.forEach {
-            speedInst.removeModifier(it)
-        }
+        try {
+            val items = EcoItemFinder.toHolderProvider().provide(player.toDispatcher()).map { it.holder }
 
-        for ((offset, item) in items.withIndex()) {
-            if (item.baseDamage != null) {
-                damageInst.addCompatibleModifier(
-                    "Damage",
-                    item.baseDamage - player.inventory.itemInMainHand.type.baseDamage,
-                    offset
-                )
+            val damageInst = player.getAttribute(Attribute.ATTACK_DAMAGE) ?: return
+            val speedInst = player.getAttribute(Attribute.ATTACK_SPEED) ?: return
+
+            damageInst.modifiers.filter { it.isFromEcoItems }.forEach {
+                damageInst.removeModifier(it)
             }
 
-            if (item.baseAttackSpeed != null) {
-                speedInst.addCompatibleModifier(
-                    "Speed",
-                    item.baseAttackSpeed - player.inventory.itemInMainHand.type.baseAttackSpeed,
-                    offset
-                )
+            speedInst.modifiers.filter { it.isFromEcoItems }.forEach {
+                speedInst.removeModifier(it)
             }
+
+            for ((offset, item) in items.withIndex()) {
+                if (item.baseDamage != null) {
+                    damageInst.addCompatibleModifier(
+                        "Damage",
+                        item.baseDamage - player.inventory.itemInMainHand.type.baseDamage,
+                        offset
+                    )
+                }
+
+                if (item.baseAttackSpeed != null) {
+                    speedInst.addCompatibleModifier(
+                        "Speed",
+                        item.baseAttackSpeed - player.inventory.itemInMainHand.type.baseAttackSpeed,
+                        offset
+                    )
+                }
+            }
+        } finally {
+            applyingPlayers.remove(uuid)
         }
     }
 
