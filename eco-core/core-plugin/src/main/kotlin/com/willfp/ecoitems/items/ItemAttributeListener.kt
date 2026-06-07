@@ -3,6 +3,7 @@ package com.willfp.ecoitems.items
 import com.willfp.ecoitems.plugin
 import com.willfp.libreforge.forceRefreshHolders
 import com.willfp.libreforge.toDispatcher
+import org.bukkit.Bukkit
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeInstance
 import org.bukkit.attribute.AttributeModifier
@@ -19,6 +20,7 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent
 import org.bukkit.inventory.EquipmentSlotGroup
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.max
 
 object ItemAttributeListener : Listener {
     private val applyingPlayers = ConcurrentHashMap<UUID, Boolean>()
@@ -29,8 +31,6 @@ object ItemAttributeListener : Listener {
         }
 
         apply(event.player)
-
-        plugin.scheduler.run { apply(event.player) }
     }
 
     @EventHandler
@@ -42,8 +42,6 @@ object ItemAttributeListener : Listener {
         event.itemDrop.itemStack.ecoItem ?: return
 
         apply(event.player)
-
-        plugin.scheduler.run { apply(event.player) }
     }
 
 
@@ -58,8 +56,6 @@ object ItemAttributeListener : Listener {
         event.item.itemStack.ecoItem ?: return
 
         apply(player)
-
-        plugin.scheduler.run { apply(player) }
     }
 
     @EventHandler
@@ -67,8 +63,6 @@ object ItemAttributeListener : Listener {
         val player = event.player as? Player ?: return
 
         apply(player)
-
-        plugin.scheduler.run { apply(player) }
     }
 
     @EventHandler
@@ -77,7 +71,7 @@ object ItemAttributeListener : Listener {
             return
         }
 
-        plugin.scheduler.runLater(1) {
+        runOnEntityLater(event.player, 1) {
             event.player.toDispatcher().forceRefreshHolders()
             apply(event.player)
         }
@@ -87,7 +81,7 @@ object ItemAttributeListener : Listener {
     fun handleInventoryClick(event: InventoryClickEvent) {
         val player = event.whoClicked as? Player ?: return
 
-        plugin.scheduler.runLater(1) {
+        runOnEntityLater(player, 1) {
             player.toDispatcher().forceRefreshHolders()
             apply(player)
         }
@@ -97,9 +91,25 @@ object ItemAttributeListener : Listener {
     fun handleInventoryDrag(event: InventoryDragEvent) {
         val player = event.whoClicked as? Player ?: return
 
-        plugin.scheduler.runLater(1) {
+        runOnEntityLater(player, 1) {
             player.toDispatcher().forceRefreshHolders()
             apply(player)
+        }
+    }
+
+    private fun runOnEntityLater(player: Player, ticksLater: Long, task: () -> Unit) {
+        val delay = max(1L, ticksLater)
+        try {
+            // Folia - use entity's region scheduler to ensure thread safety
+            player.scheduler.runDelayed(
+                plugin,
+                { _ -> task() },
+                null,
+                delay
+            )
+        } catch (_: NoSuchMethodError) {
+            // Non-Folia fallback - use Bukkit scheduler
+            Bukkit.getScheduler().runTaskLater(plugin, Runnable { task() }, delay)
         }
     }
 
