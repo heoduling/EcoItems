@@ -22,6 +22,15 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 
+// https://minecraft.wiki/w/Attribute#Attack_Damage
+private const val PLAYER_BASE_ATTACK_DAMAGE = 1.0
+
+// https://minecraft.wiki/w/Attribute#Attack_Speed
+private const val PLAYER_BASE_ATTACK_SPEED = 4.0
+
+// https://minecraft.wiki/w/Attribute#Entity_Interaction_Range
+private const val PLAYER_BASE_ENTITY_INTERACTION_RANGE = 3.0
+
 object ItemAttributeListener : Listener {
     private val applyingPlayers = ConcurrentHashMap<UUID, Boolean>()
     @EventHandler
@@ -128,6 +137,7 @@ object ItemAttributeListener : Listener {
 
             val damageInst = player.getAttribute(Attribute.ATTACK_DAMAGE) ?: return
             val speedInst = player.getAttribute(Attribute.ATTACK_SPEED) ?: return
+            val rangeInst = player.getAttribute(Attribute.ENTITY_INTERACTION_RANGE) ?: return
 
             damageInst.modifiers.filter { it.isFromEcoItems }.forEach {
                 damageInst.removeModifier(it)
@@ -137,11 +147,21 @@ object ItemAttributeListener : Listener {
                 speedInst.removeModifier(it)
             }
 
+            rangeInst.modifiers.filter { it.isFromEcoItems }.forEach {
+                rangeInst.removeModifier(it)
+            }
+
             for ((offset, item) in items.withIndex()) {
+                val baselineMaterial = if (player.inventory.itemInMainHand.type == item.itemStack.type) {
+                    player.inventory.itemInMainHand.type
+                } else {
+                    player.inventory.itemInOffHand.type
+                }
+
                 if (item.baseDamage != null) {
                     damageInst.addCompatibleModifier(
                         "Damage",
-                        item.baseDamage - player.inventory.itemInMainHand.type.baseDamage,
+                        item.baseDamage - PLAYER_BASE_ATTACK_DAMAGE - baselineMaterial.attackDamageModifier,
                         offset
                     )
                 }
@@ -149,7 +169,15 @@ object ItemAttributeListener : Listener {
                 if (item.baseAttackSpeed != null) {
                     speedInst.addCompatibleModifier(
                         "Speed",
-                        item.baseAttackSpeed - player.inventory.itemInMainHand.type.baseAttackSpeed,
+                        item.baseAttackSpeed - PLAYER_BASE_ATTACK_SPEED - baselineMaterial.attackSpeedModifier,
+                        offset
+                    )
+                }
+
+                if (item.baseAttackRange != null) {
+                    rangeInst.addCompatibleModifier(
+                        "Range",
+                        item.baseAttackRange - PLAYER_BASE_ENTITY_INTERACTION_RANGE - baselineMaterial.entityInteractionRangeModifier,
                         offset
                     )
                 }
@@ -163,12 +191,14 @@ object ItemAttributeListener : Listener {
         get() {
             if (this.name.startsWith("EcoItems Damage", true)
                 || this.name.startsWith("EcoItems Speed", true)
+                || this.name.startsWith("EcoItems Range", true)
             ) {
                 return true
             }
 
             return this.key.namespace == "ecoitems" && (this.key.key.startsWith("damage")
-                    || this.key.key.startsWith("speed"))
+                    || this.key.key.startsWith("speed")
+                    || this.key.key.startsWith("range"))
         }
 
     private fun AttributeInstance.addCompatibleModifier(
