@@ -1,7 +1,6 @@
 package com.willfp.ecoitems.items
 
 import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.display.Display
 import com.willfp.eco.core.items.CustomItem
 import com.willfp.eco.core.items.Items
 import com.willfp.eco.core.items.builder.ItemStackBuilder
@@ -49,9 +48,6 @@ class EcoItem(
             if (itemConfig.has("display-name")) {
                 setDisplayName(itemConfig.getFormattedString("display-name"))
             }
-            addLoreLines(
-                itemConfig.getFormattedStrings("lore").map { "${Display.PREFIX}$it" }
-            )
         }.build().apply {
             ecoItem = this@EcoItem
 

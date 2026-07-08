@@ -41,7 +41,10 @@ object ItemAttributeListener : Listener {
 
         event.itemDrop.itemStack.ecoItem ?: return
 
-        apply(event.player)
+        runOnEntityLater(event.player, 1) {
+            event.player.toDispatcher().forceRefreshHolders()
+            apply(event.player)
+        }
     }
 
 
