@@ -7,9 +7,10 @@ import com.willfp.ecoitems.BuildConfig
 import com.willfp.libreforge.loader.LibreforgePlugin
 import com.willfp.libreforge.loader.configs.ConfigCategory
 import com.willfp.libreforge.loader.configs.LegacyLocation
+import java.util.concurrent.ConcurrentHashMap
 
 object EcoItemsRecipes : ConfigCategory("recipe", "recipes") {
-    private val registeredIds = mutableSetOf<String>()
+    private val registeredIds = ConcurrentHashMap.newKeySet<String>()
 
     val size: Int get() = registeredIds.size
 
@@ -36,7 +37,7 @@ object EcoItemsRecipes : ConfigCategory("recipe", "recipes") {
         }
 
         plugin.scheduler.run {
-        registeredIds.add(id)
+            registeredIds.add(id)
             val recipeStrings = config.getStrings("recipe")
             if (recipeStrings.isEmpty()) return@run
 
