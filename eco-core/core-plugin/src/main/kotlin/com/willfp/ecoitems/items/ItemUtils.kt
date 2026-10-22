@@ -16,8 +16,13 @@ private val key = namespacedKeyOf("ecoitems", "item")
 var ItemStack?.ecoItem: EcoItem?
     get() {
         this ?: return null
-        val fis = this.fast()
-        return fis.ecoItem
+        val pdc = this.persistentDataContainer
+        if (pdc.isEmpty) return null
+        // Legacy items still need the writable path to persist their migration.
+        if (pdc.get(legacyKey, PersistentDataType.STRING) != null) {
+            return this.fast().ecoItem
+        }
+        return EcoItems.getByID(pdc.get(key, PersistentDataType.STRING))
     }
     set(value) {
         this ?: return
@@ -29,9 +34,10 @@ var FastItemStack.ecoItem: EcoItem?
     get() {
         val pdc = this.persistentDataContainer
 
-        if (pdc.get(legacyKey, PersistentDataType.STRING) != null) {
+        val legacyID = pdc.get(legacyKey, PersistentDataType.STRING)
+        if (legacyID != null) {
+            pdc.set(key, PersistentDataType.STRING, legacyID)
             pdc.remove(legacyKey)
-            pdc.set(key, PersistentDataType.STRING, pdc.get(legacyKey, PersistentDataType.STRING)!!)
         }
 
         return EcoItems.getByID(pdc.get(key, PersistentDataType.STRING))

@@ -1,0 +1,15 @@
+# Test-only definition, copied into the isolated server, never shipped as a default item.
+item:
+  item: netherite_sword hide_attributes
+  display-name: 'Probe %player_name%'
+  lore:
+    - 'Probe %player_name%'
+slot: mainhand
+conditions:
+  - id: above_health_percent
+    args:
+      percent: 50
+      show-not-met: true
+      not-met-lines:
+        - 'PROBE_HEALTH_REQUIREMENT'
+effects: []

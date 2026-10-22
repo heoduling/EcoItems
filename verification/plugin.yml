@@ -1,0 +1,12 @@
+name: ItemsProbe
+version: 1
+main: verification.ItemsProbe
+api-version: '1.21'
+folia-supported: true
+depend: [EcoItems, eco, libreforge]
+commands:
+  itemsaudit:
+    permission: itemsaudit.test
+permissions:
+  itemsaudit.test:
+    default: true

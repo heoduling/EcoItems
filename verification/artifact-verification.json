@@ -1,0 +1,71 @@
+{
+  "productionSha256": "9ff79c09592d8962de135fb67ecdc148101811958b3731cd235907a9e8c58918",
+  "rebuiltSha256": "a1bd20ae898fbffd92d41e9ddbd6986fa44434886fae5dc79be08d553fc2ac80",
+  "candidateSha256": "3e797df9ed9892ea29eecfa89d67cef37ee522521410fe5b56a34fb96fcc0435",
+  "projectClasses": 29,
+  "baselineByteIdentical": 29,
+  "changedClasses": [
+    "com/willfp/ecoitems/display/ItemsDisplay.class",
+    "com/willfp/ecoitems/items/ItemUtilsKt.class"
+  ],
+  "resourcesEqualExceptPluginVersion": 25,
+  "inputs": [
+    {
+      "name": "eco.jar",
+      "bytes": 11937253,
+      "sha256": "641a1544a88f87546a7d072ee367c8c14b254cb172f805d7b3543780d47b6a16"
+    },
+    {
+      "name": "EcoArmor.jar",
+      "bytes": 149491,
+      "sha256": "41daf8dd2576377fc3a4873236d5583248020b460799df84cad083b283abdecd"
+    },
+    {
+      "name": "EcoEnchants.jar",
+      "bytes": 1106864,
+      "sha256": "f7a626d81ba24005d077bdf4a23ffdd70eb5e560aa73dfa984809737cb22d2e6"
+    },
+    {
+      "name": "EcoItems.jar",
+      "bytes": 114917,
+      "sha256": "3e797df9ed9892ea29eecfa89d67cef37ee522521410fe5b56a34fb96fcc0435"
+    },
+    {
+      "name": "FXEnchant.jar",
+      "bytes": 542191,
+      "sha256": "cc57fae900b0f98f6fd3d982d6cf9782be481d87931db9fcf84531be26c6013d"
+    },
+    {
+      "name": "ItemsProbe.jar",
+      "bytes": 15033,
+      "sha256": "c45b8b5d9bef1e7dcf45f61b5a366b5d7f722cf8813a0939c89bb8bfa029093a"
+    },
+    {
+      "name": "libreforge.jar",
+      "bytes": 29356189,
+      "sha256": "e76154e7818d7e1671e760625f23e1f1b0c8c9dacc1c2b8a78c147bded0821fa"
+    },
+    {
+      "name": "mcMMO.jar",
+      "bytes": 3713661,
+      "sha256": "aa5204849e2d6121b4922c720f3d4d58408a3700bca8d042a5c46659535698e1"
+    },
+    {
+      "name": "Reforges.jar",
+      "bytes": 212446,
+      "sha256": "1986b60ea701f3053b3c4d09bf7b4bf1040d6330a182366993bb34c0f35b85b9"
+    },
+    {
+      "name": "shiroha-bundler-26.2-SNAPSHOT (3).jar",
+      "bytes": 106421633,
+      "sha256": "ea152171a3b8bac185056077f9c8674b3b8fa12420ebc0c5ea279fc38eb7345e"
+    },
+    {
+      "name": "shiroha-26.2.jar",
+      "bytes": 30392224,
+      "sha256": "7fe4526f202c0781de4b3a50027d7e32d903ffc4072973c68bc19401f9623341"
+    }
+  ],
+  "gradleTests": 0,
+  "regressionProbe": "verification/ItemsProbe.java"
+}

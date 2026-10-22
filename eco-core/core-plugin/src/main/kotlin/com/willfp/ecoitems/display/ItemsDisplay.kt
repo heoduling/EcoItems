@@ -20,8 +20,8 @@ object ItemsDisplay : DisplayModule(plugin, DisplayPriority.LOWEST) {
         player: Player?,
         vararg args: Any
     ) {
+        val ecoItem = itemStack.ecoItem ?: return
         val fis = itemStack.fast()
-        val ecoItem = fis.ecoItem ?: return
 
         val provided = ItemProvidedHolder(ecoItem, itemStack)
 
