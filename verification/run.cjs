@@ -26,5 +26,3 @@ let server,bots,text='',out,botout;
  if(server&&server.exitCode===null){server.stdin.write('stop\n');await until(()=>server.exitCode!==null,60000,'normal shutdown');console.log(label+' EXIT '+server.exitCode);}
  if(bots)bots.kill();if(botout)botout.end();
 }})().catch(e=>{console.error(e);process.exitCode=1;});
-
-

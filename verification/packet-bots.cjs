@@ -142,5 +142,3 @@ if(process.argv.includes('--selftest')){
     res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify(result));
   }catch(e){res.writeHead(500);res.end(e.stack);}
 }).listen(25695,'127.0.0.1',()=>console.log('BOT_CONTROL_READY 25695 protocol='+ids.protocol+' sourceSha256='+crypto.createHash('sha256').update(fs.readFileSync(__filename)).digest('hex')));
-
-

@@ -13,4 +13,3 @@ Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'plugin.yml') -Destination (Join
 & 'D:/java/bin/jar.exe' --create --file (Join-Path $task 'verification/ItemsProbe.jar') -C $classes .
 if($LASTEXITCODE -ne 0){throw 'Probe archive failed'}
 Copy-Item -LiteralPath (Join-Path $task 'verification/ItemsProbe.jar') -Destination (Join-Path $lab 'plugins/ItemsProbe.jar')
-
